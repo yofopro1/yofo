@@ -1,29 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
-import Button from "./Button.jsx";
+import Logo from "./Logo.jsx";
 
 const NAV_ITEMS = [
   { label: "Games", href: "#featured-games" },
   { label: "Discover", href: "#trending" },
   { label: "Reviews", soon: true },
   { label: "News", href: "#latest-content" },
-  { label: "Game Finder", href: "#game-finder" },
+  { label: "Game Finder", soon: true },
 ];
 
 /**
- * Floating liquid-glass navigation. Tracks scroll position to highlight
- * the active section with an animated sliding indicator, and offers a
- * glass mobile menu + inline search on small screens / narrow viewports.
+ * Top navigation bar: logo, section links with a sliding underline under
+ * the active one, an inline search field, and a placeholder account
+ * icon (auth isn't built yet, so it's decorative). Collapses to a glass
+ * dropdown menu on small screens.
  */
 export default function Header() {
   const [activeHref, setActiveHref] = useState("#featured-games");
   const [isMobileOpen, setMobileOpen] = useState(false);
-  const [isSearchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const [searchNotice, setSearchNotice] = useState(false);
 
   const linkRefs = useRef({});
   const [indicator, setIndicator] = useState({ left: 0, width: 0, opacity: 0 });
 
-  // Track which section is in view to move the active-tab indicator.
+  // Track which section is in view to move the active-tab underline.
   useEffect(() => {
     const sectionIds = NAV_ITEMS.filter((item) => item.href).map((item) =>
       item.href.replace("#", "")
@@ -48,7 +49,7 @@ export default function Header() {
     return () => observer.disconnect();
   }, []);
 
-  // Position the sliding active-tab indicator under the current link.
+  // Position the sliding underline beneath the current link.
   useEffect(() => {
     function measure() {
       const node = linkRefs.current[activeHref];
@@ -69,7 +70,7 @@ export default function Header() {
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [activeHref, isSearchOpen]);
+  }, [activeHref]);
 
   function handleNavClick(href) {
     setActiveHref(href);
@@ -82,121 +83,100 @@ export default function Header() {
   }
 
   return (
-    <header className="nav-float-wrap">
-      <div className="nav-float glass glass--strong">
-        <a href="#top" className="nav-logo" aria-label="YoFo home">
-          <span className="nav-logo-mark" aria-hidden="true" />
-          <span className="nav-logo-text">YoFo</span>
+    <header className="nav-wrap">
+      <div className="nav-bar glass glass--strong">
+        <a href="#top" className="nav-logo-link" aria-label="YoFo Studio home">
+          <Logo />
         </a>
 
-        {!isSearchOpen && (
-          <nav className="nav-links" aria-label="Primary">
-            <span
-              className="nav-indicator"
-              style={{
-                left: indicator.left,
-                width: indicator.width,
-                opacity: indicator.opacity,
-              }}
-              aria-hidden="true"
-            />
-            {NAV_ITEMS.map((item) =>
-              item.soon ? (
-                <span
-                  key={item.label}
-                  className="nav-link nav-link--soon"
-                  title="Coming soon"
-                  tabIndex={0}
-                >
-                  {item.label}
-                </span>
-              ) : (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  ref={(node) => (linkRefs.current[item.href] = node)}
-                  className={`nav-link ${
-                    activeHref === item.href ? "nav-link--active" : ""
-                  }`}
-                  onClick={() => handleNavClick(item.href)}
-                >
-                  {item.label}
-                </a>
-              )
-            )}
-          </nav>
-        )}
+        <nav className="nav-links" aria-label="Primary">
+          <span
+            className="nav-indicator"
+            style={{
+              left: indicator.left,
+              width: indicator.width,
+              opacity: indicator.opacity,
+            }}
+            aria-hidden="true"
+          />
+          {NAV_ITEMS.map((item) =>
+            item.soon ? (
+              <span
+                key={item.label}
+                className="nav-link nav-link--soon"
+                title="Coming soon"
+                tabIndex={0}
+              >
+                {item.label}
+              </span>
+            ) : (
+              <a
+                key={item.label}
+                href={item.href}
+                ref={(node) => (linkRefs.current[item.href] = node)}
+                className={`nav-link ${
+                  activeHref === item.href ? "nav-link--active" : ""
+                }`}
+                onClick={() => handleNavClick(item.href)}
+              >
+                {item.label}
+              </a>
+            )
+          )}
+        </nav>
 
-        {isSearchOpen && (
-          <form className="nav-search" onSubmit={handleSearchSubmit}>
-            <svg
-              className="nav-search-icon"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
+        <form className="nav-search" onSubmit={handleSearchSubmit}>
+          <input
+            type="text"
+            placeholder="Search games..."
+            aria-label="Search games"
+            value={searchValue}
+            onChange={(event) => {
+              setSearchValue(event.target.value);
+              setSearchNotice(false);
+            }}
+          />
+          <button type="submit" className="nav-search-btn" aria-label="Search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
               <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
-            <input
-              type="text"
-              placeholder="Search games, news, reviews…"
-              autoFocus
-              aria-label="Search"
-              onChange={() => setSearchNotice(false)}
-            />
-            {searchNotice && (
-              <span className="nav-search-notice">Search is coming soon</span>
-            )}
-            <button
-              type="button"
-              className="nav-search-close"
-              aria-label="Close search"
-              onClick={() => {
-                setSearchOpen(false);
-                setSearchNotice(false);
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-          </form>
-        )}
-
-        <div className="nav-actions">
-          {!isSearchOpen && (
-            <button
-              type="button"
-              className="nav-icon-btn"
-              aria-label="Search"
-              onClick={() => setSearchOpen(true)}
-            >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-                <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-          )}
-          <Button href="#game-finder" size="sm" className="nav-cta">
-            Find Your Game
-          </Button>
-          <button
-            type="button"
-            className="nav-mobile-toggle"
-            aria-label="Toggle menu"
-            aria-expanded={isMobileOpen}
-            onClick={() => setMobileOpen((v) => !v)}
-          >
-            <span className={`nav-burger ${isMobileOpen ? "is-open" : ""}`}>
-              <span />
-              <span />
-              <span />
-            </span>
           </button>
-        </div>
+          {searchNotice && (
+            <span className="nav-search-notice">Search is coming soon</span>
+          )}
+        </form>
+
+        <button
+          type="button"
+          className="nav-avatar"
+          title="Account — coming soon"
+          aria-label="Account (coming soon)"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="8.5" r="3.5" stroke="currentColor" strokeWidth="1.8" />
+            <path
+              d="M4.5 20c1.4-4 4.2-6 7.5-6s6.1 2 7.5 6"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className="nav-mobile-toggle"
+          aria-label="Toggle menu"
+          aria-expanded={isMobileOpen}
+          onClick={() => setMobileOpen((v) => !v)}
+        >
+          <span className={`nav-burger ${isMobileOpen ? "is-open" : ""}`}>
+            <span />
+            <span />
+            <span />
+          </span>
+        </button>
       </div>
 
       {isMobileOpen && (
@@ -217,9 +197,24 @@ export default function Header() {
               </a>
             )
           )}
-          <Button href="#game-finder" className="nav-mobile-cta" onClick={() => setMobileOpen(false)}>
-            Find Your Game
-          </Button>
+          <form className="nav-search nav-search--mobile" onSubmit={handleSearchSubmit}>
+            <input
+              type="text"
+              placeholder="Search games..."
+              aria-label="Search games"
+              value={searchValue}
+              onChange={(event) => {
+                setSearchValue(event.target.value);
+                setSearchNotice(false);
+              }}
+            />
+            <button type="submit" className="nav-search-btn" aria-label="Search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          </form>
         </div>
       )}
     </header>

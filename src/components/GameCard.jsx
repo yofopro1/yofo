@@ -3,9 +3,10 @@ import GameCoverArt from "./GameCoverArt.jsx";
 import RatingBadge from "./RatingBadge.jsx";
 
 /**
- * Premium glass game card — the core content unit of the site. Used at
- * two sizes: "primary" for the single editorial spotlight in Featured
- * Games, and "default" for every other grid context.
+ * Portrait poster card — the core content unit of the Featured Games
+ * row. `variant="primary"` marks the current editorial pick with a
+ * "Featured" ribbon and a stronger glow; every other card renders the
+ * same poster shape so the row reads as one consistent set.
  *
  * There's no game-detail page yet, so the card is a non-navigating
  * placeholder control: it's focusable and shows what a detail view will
@@ -21,6 +22,14 @@ export default function GameCard({ game, variant = "default" }) {
       <div className="game-card-cover-wrap">
         <GameCoverArt game={game} className="game-card-cover" />
         <span className="game-card-genre-tag">{game.genre}</span>
+        {variant === "primary" && (
+          <span className="game-card-featured-tag">Featured</span>
+        )}
+        <div className="game-card-cover-fade" aria-hidden="true" />
+        <div className="game-card-ratings game-card-ratings--overlay">
+          <RatingBadge variant="yofo" value={game.yofoRating} size="sm" />
+          <RatingBadge variant="audience" value={game.audienceRating} size="sm" />
+        </div>
       </div>
 
       <div className="game-card-body">
@@ -39,11 +48,6 @@ export default function GameCard({ game, variant = "default" }) {
               {platform}
             </span>
           ))}
-        </div>
-
-        <div className="game-card-ratings">
-          <RatingBadge variant="yofo" value={game.yofoRating} size="sm" />
-          <RatingBadge variant="audience" value={game.audienceRating} size="sm" />
         </div>
       </div>
     </article>

@@ -1,55 +1,78 @@
 import React from "react";
 import Button from "./Button.jsx";
-import GameCoverArt from "./GameCoverArt.jsx";
 import Reveal from "./Reveal.jsx";
-import { featuredGames } from "../data/games.js";
+import { primaryFeaturedGame, games } from "../data/games.js";
 
-const stageGames = featuredGames.slice(0, 3);
+const STATS = [
+  { value: `${games.length * 40}+`, label: "Games tracked" },
+  { value: "12K+", label: "Player reviews" },
+  { value: "38K+", label: "Monthly players" },
+  { value: "Daily", label: "Fresh updates" },
+];
 
+/**
+ * Hero: one large atmospheric card for the current editorial pick, a
+ * single primary CTA, and a glass stats bar overlapping the card's
+ * bottom edge. The background is an original gradient treatment (not
+ * cover art) so no specific game's art is misrepresented here.
+ */
 export default function Hero() {
+  const [from, to] = primaryFeaturedGame.gradient;
+
   return (
     <section id="top" className="hero">
-      <div className="hero-glow" aria-hidden="true" />
-      <div className="hero-grid" aria-hidden="true" />
+      <div className="container">
+        <Reveal className="hero-card-wrap">
+          <div
+            className="hero-card"
+            style={{
+              backgroundImage: `radial-gradient(120% 140% at 15% 0%, ${from}66 0%, transparent 55%), radial-gradient(90% 120% at 100% 100%, ${to}80 0%, transparent 60%), linear-gradient(160deg, #1a0533 0%, #0a0116 70%)`,
+            }}
+          >
+            <div className="hero-card-noise" aria-hidden="true" />
 
-      <div className="hero-inner container">
-        <Reveal className="hero-content">
-          <span className="hero-eyebrow">Game discovery, reimagined</span>
-          <h1 className="hero-title">Find Your Next Game.</h1>
-          <p className="hero-subtitle">
-            YoFo brings together ratings, reviews, and a discovery engine
-            built to cut through the noise — so you always know what's
-            actually worth playing.
-          </p>
-          <div className="hero-actions">
-            <Button href="#game-finder" size="md">
-              Find Your Game
-            </Button>
-            <Button href="#featured-games" variant="secondary" size="md">
-              Explore Games
-            </Button>
-          </div>
-        </Reveal>
+            <span className="hero-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2 14.9 9h7.1l-5.7 4.3 2.2 7.1L12 16.2 5.5 20.4l2.2-7.1L2 9h7.1z" />
+              </svg>
+              Featured Pick
+            </span>
 
-        <Reveal className="hero-visual" delay={140}>
-          <div className="hero-visual-stage">
-            {stageGames.map((game, index) => (
-              <div
-                className={`hero-visual-card hero-visual-card--${index}`}
-                key={game.id}
-              >
-                <div className="hero-visual-card-glass glass glass--strong">
-                  <GameCoverArt game={game} className="hero-visual-cover" />
-                  <div className="hero-visual-card-info">
-                    <span className="hero-visual-card-title">{game.title}</span>
-                    <span className="hero-visual-card-meta">
-                      {game.genre} · {game.releaseYear}
-                    </span>
-                  </div>
-                  <span className="hero-visual-card-rating">
-                    {game.yofoRating.toFixed(1)}
+            <div className="hero-card-body">
+              <h1 className="hero-title">
+                {primaryFeaturedGame.title.split(" ").map((word, i) => (
+                  <span className="hero-title-line" key={i}>
+                    {word}
                   </span>
-                </div>
+                ))}
+              </h1>
+              <p className="hero-subtitle">{primaryFeaturedGame.tagline}</p>
+              <Button href={`#featured-games`} size="md" className="hero-cta">
+                Dive In
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Button>
+            </div>
+
+            <div className="hero-dots" aria-hidden="true">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className={`dot ${i === 0 ? "is-active" : ""}`} />
+              ))}
+            </div>
+          </div>
+
+          <div className="hero-stats glass glass--strong">
+            {STATS.map((stat) => (
+              <div className="hero-stat" key={stat.label}>
+                <span className="hero-stat-value">{stat.value}</span>
+                <span className="hero-stat-label">{stat.label}</span>
               </div>
             ))}
           </div>
