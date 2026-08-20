@@ -1,24 +1,15 @@
 import React from "react";
+import Home from "./pages/Home.jsx";
 
-// This is the clean foundation shell.
-// Pages, routing, database calls, auth, and the community/forum system
-// get added on top of this as separate features in src/pages, src/components, etc.
-
+// Root shell. Routing, auth, and other cross-cutting concerns get added
+// here as they're built — for now this renders the homepage directly.
 export default function App() {
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <span className="app-logo-dot" aria-hidden="true" />
-        <span className="app-logo-text">YoFo Studios</span>
-      </header>
-
-      <main className="app-main">
-        <h1>Foundation is running.</h1>
-        <p>
-          React + Vite is configured and ready. Build game pages, news,
-          search, categories, accounts, and the forum on top of this shell.
-        </p>
-      </main>
+      <div className="app-noise" aria-hidden="true" />
+      <div className="app-content">
+        <Home />
+      </div>
     </div>
   );
 }
